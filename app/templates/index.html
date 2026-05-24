@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Backhaul{% endblock %}
+
+{% block content %}
+
+{% if live_games %}
+<section class="section">
+  <h2 class="section-title">&#128308; Live Now</h2>
+  <div class="game-grid">
+    {% for game in live_games %}
+    <div class="game-card">
+      <div class="game-sport">{{ sports_config[game.sport].name if game.sport in sports_config else game.sport|upper }}</div>
+      <div class="game-teams">
+        <div class="game-team">
+          <span class="team-name">{{ game.away_name }}</span>
+          <span class="game-score">{{ game.away_score }}</span>
+        </div>
+        <div class="game-divider">
+          <span class="period-detail">{{ game.period_detail }}</span>
+        </div>
+        <div class="game-team">
+          <span class="team-name">{{ game.home_name }}</span>
+          <span class="game-score">{{ game.home_score }}</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<div class="home-grid">
+
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">&#127944; My Teams</h2>
+      <a href="/settings" class="btn btn-sm">Edit</a>
+    </div>
+
+    {% if teams_by_sport %}
+    <div class="sub-list">
+      {% for sport, teams_str in teams_by_sport.items() %}
+      <div class="sub-card">
+        <div class="sub-header">
+          <div class="sub-info">
+            <span class="sport-badge sport-{{ sport }}">{{ sports_config[sport].name if sport in sports_config else sport|upper }}</span>
+            <span class="sub-name">{{ teams_str }}</span>
+          </div>
+        </div>
+        <div class="notify-chips">
+          {% if settings.get('notify_start_' + sport) == 'true' %}<span class="notify-chip">Start</span>{% endif %}
+          {% if settings.get('notify_score_' + sport) == 'true' %}<span class="notify-chip">Score</span>{% endif %}
+          {% if settings.get('notify_final_' + sport) == 'true' %}<span class="notify-chip">Final</span>{% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-state">No teams configured. <a href="/settings">Add teams</a> to get started.</p>
+    {% endif %}
+  </section>
+
+  <section class="section">
+    <div class="section-header">
+      <h2 class="section-title">&#128203; Activity</h2>
+      <span class="muted" id="activity-updated"></span>
+    </div>
+    <div class="activity-list" id="activity-list">
+      {% if activity %}
+        {% for entry in activity %}
+        <div class="activity-entry log-{{ entry.log_type }}">
+          <span class="activity-time">{{ entry.timestamp[:16].replace("T", " ") }}</span>
+          <span class="activity-msg">{{ entry.message }}</span>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p class="empty-state">No activity yet.</p>
+      {% endif %}
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Auto-refresh activity log every 30s
+  setInterval(refreshActivity, 30000);
+</script>
+{% endblock %}

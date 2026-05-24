@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Settings — Backhaul{% endblock %}
+
+{% block content %}
+<h1 class="page-title">Settings</h1>
+
+<form method="post" action="/settings">
+
+  <!-- SMS -->
+  <div class="card settings-card">
+    <h2>SMS</h2>
+    <p class="card-sub">Texts are sent via your Gmail account to your carrier's email-to-SMS gateway.</p>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="email_from">Gmail Address</label>
+        <input type="email" id="email_from" name="email_from"
+               value="{{ settings.email_from }}" placeholder="you@gmail.com">
+      </div>
+      <div class="form-group">
+        <label for="email_password">Gmail App Password</label>
+        <input type="password" id="email_password" name="email_password"
+               placeholder="Leave blank to keep current">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="sms_to_number">Phone Number</label>
+        <input type="tel" id="sms_to_number" name="sms_to_number"
+               value="{{ settings.sms_to_number }}" placeholder="5551234567">
+      </div>
+      <div class="form-group">
+        <label for="sms_carrier">Carrier</label>
+        <select id="sms_carrier" name="sms_carrier">
+          <option value="att"      {% if settings.sms_carrier == "att"      %}selected{% endif %}>AT&amp;T</option>
+          <option value="verizon"  {% if settings.sms_carrier == "verizon"  %}selected{% endif %}>Verizon</option>
+          <option value="tmobile"  {% if settings.sms_carrier == "tmobile"  %}selected{% endif %}>T-Mobile</option>
+          <option value="sprint"   {% if settings.sms_carrier == "sprint"   %}selected{% endif %}>Sprint</option>
+          <option value="boost"    {% if settings.sms_carrier == "boost"    %}selected{% endif %}>Boost</option>
+          <option value="cricket"  {% if settings.sms_carrier == "cricket"  %}selected{% endif %}>Cricket</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-actions" style="justify-content:flex-start; margin-top:0.5rem;">
+      <button type="button" class="btn btn-ghost" onclick="testNotification(this)">&#9993; Send test SMS</button>
+    </div>
+  </div>
+
+  <!-- Do Not Disturb -->
+  <div class="card settings-card">
+    <h2>Do Not Disturb</h2>
+    <p class="card-sub">Suppress all SMS notifications during quiet hours (local time). Triggered notifications during this window are silently dropped.</p>
+    <div class="form-row align-center">
+      <label class="pref-label big">
+        <span class="toggle">
+          <input type="checkbox" name="dnd_enabled" {% if settings.dnd_enabled == "true" %}checked{% endif %}>
+          <span class="toggle-slider"></span>
+        </span>
+        Enable Do Not Disturb
+      </label>
+    </div>
+    <div id="dnd-times" {% if settings.dnd_enabled != "true" %}style="display:none"{% endif %}>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="dnd_start">Quiet from</label>
+          <input type="time" id="dnd_start" name="dnd_start" value="{{ settings.dnd_start or '23:00' }}">
+        </div>
+        <div class="form-group">
+          <label for="dnd_end">Until</label>
+          <input type="time" id="dnd_end" name="dnd_end" value="{{ settings.dnd_end or '08:00' }}">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sports, Teams & Polling -->
+  <div class="card settings-card">
+    <h2>Sports &amp; Teams</h2>
+    <p class="card-sub">Enter team abbreviations or names, comma-separated. Leave blank to skip a sport. Matching is case-insensitive.</p>
+
+    {% for key, cfg in sports_config.items() %}
+    <div class="sport-team-section">
+      <div class="sport-team-header">
+        <span class="sport-badge sport-{{ key }}">{{ cfg.name }}</span>
+        <span class="sport-team-label">{{ cfg.full_name }}</span>
+        <span class="sport-interval-wrap">
+          <label class="interval-label" for="poll_{{ key }}">Poll every</label>
+          <input type="number" id="poll_{{ key }}" name="poll_interval_{{ key }}"
+                 value="{{ settings.get('poll_interval_' + key) or '5' }}"
+                 min="1" max="60" class="interval-input"> min
+        </span>
+      </div>
+      <div class="form-group" style="margin-bottom:0.5rem">
+        <input type="text" name="teams_{{ key }}"
+               value="{{ settings.get('teams_' + key, '') }}"
+               placeholder="e.g. {% if key == 'epl' %}Liverpool, Man City{% elif key == 'nfl' %}CIN, KC{% elif key == 'nba' %}LAL, BOS{% elif key == 'mlb' %}CIN, NYY{% else %}CBJ, PIT{% endif %}">
+      </div>
+      <div class="notify-row">
+        <label class="pref-label">
+          <input type="checkbox" name="notify_start_{{ key }}" value="1"
+                 {% if settings.get('notify_start_' + key, 'true') == 'true' %}checked{% endif %}>
+          Game start
+        </label>
+        <label class="pref-label">
+          <input type="checkbox" name="notify_score_{{ key }}" value="1"
+                 {% if settings.get('notify_score_' + key, 'true') == 'true' %}checked{% endif %}>
+          Score change
+        </label>
+        <label class="pref-label">
+          <input type="checkbox" name="notify_final_{{ key }}" value="1"
+                 {% if settings.get('notify_final_' + key, 'true') == 'true' %}checked{% endif %}>
+          Final score
+        </label>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="form-actions sticky-save">
+    <button type="submit" class="btn btn-primary">Save Settings</button>
+  </div>
+
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  document.querySelector('input[name="dnd_enabled"]').addEventListener('change', function() {
+    document.getElementById('dnd-times').style.display = this.checked ? '' : 'none';
+  });
+</script>
+{% endblock %}

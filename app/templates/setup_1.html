@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Setup — Backhaul{% endblock %}
+{% block nav_extra %}<div class="nav-links"></div>{% endblock %}
+
+{% block content %}
+<div class="setup-wrap">
+  <div class="setup-header">
+    <h1 class="setup-title">&#9889; Backhaul Setup</h1>
+    <p class="setup-sub">Sports score notifications via SMS</p>
+  </div>
+
+  <div class="setup-steps">
+    <span class="step active">1. Notifications</span>
+    <span class="step-sep">›</span>
+    <span class="step">2. Sports</span>
+  </div>
+
+  <div class="card setup-card">
+    <h2>SMS Configuration</h2>
+    <p class="card-sub">
+      Backhaul sends texts via your Gmail account using your carrier's email-to-SMS gateway.
+      No third-party SMS service required.
+    </p>
+
+    <form method="post" action="/setup/1">
+      <div class="form-group">
+        <label for="email_from">Gmail Address</label>
+        <input type="email" id="email_from" name="email_from"
+               value="{{ settings.email_from }}"
+               placeholder="you@gmail.com" required>
+      </div>
+      <div class="form-group">
+        <label for="email_password">Gmail App Password</label>
+        <input type="password" id="email_password" name="email_password"
+               placeholder="16-character app password" required>
+        <span class="hint">Generate at myaccount.google.com → Security → App Passwords</span>
+      </div>
+      <div class="form-group">
+        <label for="sms_to_number">Your Phone Number</label>
+        <input type="tel" id="sms_to_number" name="sms_to_number"
+               value="{{ settings.sms_to_number }}"
+               placeholder="10-digit number, e.g. 5551234567" required>
+      </div>
+      <div class="form-group">
+        <label for="sms_carrier">Carrier</label>
+        <select id="sms_carrier" name="sms_carrier">
+          <option value="att" {% if settings.sms_carrier == "att" or not settings.sms_carrier %}selected{% endif %}>AT&amp;T</option>
+          <option value="verizon" {% if settings.sms_carrier == "verizon" %}selected{% endif %}>Verizon</option>
+          <option value="tmobile" {% if settings.sms_carrier == "tmobile" %}selected{% endif %}>T-Mobile</option>
+          <option value="sprint" {% if settings.sms_carrier == "sprint" %}selected{% endif %}>Sprint</option>
+          <option value="boost" {% if settings.sms_carrier == "boost" %}selected{% endif %}>Boost</option>
+          <option value="cricket" {% if settings.sms_carrier == "cricket" %}selected{% endif %}>Cricket</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Next &rarr;</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,13 @@
+services:
+  backhaul:
+    build: .
+    container_name: backhaul
+    ports:
+      - "8091:8000"
+    volumes:
+      - backhaul_data:/app/data
+      - /etc/localtime:/etc/localtime:ro
+    restart: unless-stopped
+
+volumes:
+  backhaul_data:

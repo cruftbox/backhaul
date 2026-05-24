@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Setup — Backhaul{% endblock %}
+{% block nav_extra %}<div class="nav-links"></div>{% endblock %}
+
+{% block content %}
+<div class="setup-wrap">
+  <div class="setup-header">
+    <h1 class="setup-title">&#9889; Backhaul Setup</h1>
+    <p class="setup-sub">Sports score notifications via SMS</p>
+  </div>
+
+  <div class="setup-steps">
+    <span class="step done">1. Twilio</span>
+    <span class="step-sep">›</span>
+    <span class="step done">2. Phone</span>
+    <span class="step-sep">›</span>
+    <span class="step active">3. Sports</span>
+  </div>
+
+  <div class="card setup-card">
+    <h2>Which sports do you follow?</h2>
+    <p class="card-sub">Enable the leagues you want to track. You can change this later in Settings. Team lists will load in the background after you finish setup.</p>
+
+    <form method="post" action="/setup/3">
+      <div class="sport-grid">
+        {% for key, cfg in sports_config.items() %}
+        <label class="sport-option {% if key in enabled_sports %}selected{% endif %}" id="sport-opt-{{ key }}">
+          <input type="checkbox" name="sport_{{ key }}" value="1"
+                 {% if key in enabled_sports %}checked{% endif %}
+                 onchange="this.closest('.sport-option').classList.toggle('selected', this.checked)">
+          <span class="sport-option-name">{{ cfg.full_name }}</span>
+        </label>
+        {% endfor %}
+      </div>
+      <div class="form-actions">
+        <a href="/setup/2" class="btn btn-ghost">&larr; Back</a>
+        <button type="submit" class="btn btn-primary">Finish Setup</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

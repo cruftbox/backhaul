@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Setup — Backhaul{% endblock %}
+{% block nav_extra %}<div class="nav-links"></div>{% endblock %}
+
+{% block content %}
+<div class="setup-wrap" style="max-width:600px">
+  <div class="setup-header">
+    <h1 class="setup-title">&#9889; Backhaul Setup</h1>
+    <p class="setup-sub">Sports score notifications via SMS</p>
+  </div>
+
+  <div class="setup-steps">
+    <span class="step done">1. SMS</span>
+    <span class="step-sep">›</span>
+    <span class="step active">2. Teams</span>
+  </div>
+
+  <div class="card setup-card">
+    <h2>Which teams do you follow?</h2>
+    <p class="card-sub">Enter team abbreviations or names, comma-separated (e.g. <code>CIN, KC</code>). Leave blank to skip a sport. Matching is case-insensitive.</p>
+
+    <form method="post" action="/setup/2">
+      {% for key, cfg in sports_config.items() %}
+      <div class="sport-team-section">
+        <div class="sport-team-header">
+          <span class="sport-badge sport-{{ key }}">{{ cfg.name }}</span>
+          <span class="sport-team-label">{{ cfg.full_name }}</span>
+        </div>
+        <div class="form-group" style="margin-bottom:0.5rem">
+          <input type="text" name="teams_{{ key }}"
+                 value="{{ settings.get('teams_' + key, '') }}"
+                 placeholder="e.g. {% if key == 'epl' %}Liverpool, Man City{% elif key == 'nfl' %}CIN, KC{% elif key == 'nba' %}LAL, BOS{% elif key == 'mlb' %}CIN, NYY{% else %}CBJ, PIT{% endif %}">
+        </div>
+        <div class="notify-row">
+          <label class="pref-label">
+            <input type="checkbox" name="notify_start_{{ key }}" value="1"
+                   {% if settings.get('notify_start_' + key, 'true') == 'true' %}checked{% endif %}>
+            Game start
+          </label>
+          <label class="pref-label">
+            <input type="checkbox" name="notify_score_{{ key }}" value="1"
+                   {% if settings.get('notify_score_' + key, 'true') == 'true' %}checked{% endif %}>
+            Score change
+          </label>
+          <label class="pref-label">
+            <input type="checkbox" name="notify_final_{{ key }}" value="1"
+                   {% if settings.get('notify_final_' + key, 'true') == 'true' %}checked{% endif %}>
+            Final score
+          </label>
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="form-actions" style="margin-top:1.5rem">
+        <a href="/setup/1" class="btn btn-ghost">&larr; Back</a>
+        <button type="submit" class="btn btn-primary">Finish Setup</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
